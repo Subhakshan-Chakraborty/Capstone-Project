@@ -1,5 +1,19 @@
+# Python
 venv/
-node_modules/
 __pycache__/
 *.pyc
+
+# Django
+db.sqlite3
+
+# Env
 .env
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# OS
+.DS_Store

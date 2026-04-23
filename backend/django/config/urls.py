@@ -5,6 +5,5 @@ from todos import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health', views.health),
-    path('todos', views.get_todos),
-    path('add', views.add_todo),
+    path('todos', views.todos),
 ]

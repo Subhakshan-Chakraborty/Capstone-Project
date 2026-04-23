@@ -1,22 +1,28 @@
 from django.http import JsonResponse
 from .models import Todo
 import json
+from django.views.decorators.csrf import csrf_exempt
 
-# Health check
 def health(request):
     return JsonResponse({"status": "healthy-django"})
 
-# Get todos
-def get_todos(request):
-    data = list(Todo.objects.values())
-    return JsonResponse(data, safe=False)
+@csrf_exempt
+def todos(request):
+    if request.method == "GET":
+        data = list(Todo.objects.values())
+        return JsonResponse(data, safe=False)
 
-# Add todo
-def add_todo(request):
-    if request.method == "POST":
+    elif request.method == "POST":
+        print("RAW BODY:", request.body)
+
         body = json.loads(request.body)
-        Todo.objects.create(
+        print("PARSED BODY:", body)
+
+        todo = Todo.objects.create(
             title=body.get("title"),
             completed=body.get("completed", False)
         )
+
+        print("CREATED TODO:", todo.id)
+
         return JsonResponse({"message": "Todo added (Django)"})
