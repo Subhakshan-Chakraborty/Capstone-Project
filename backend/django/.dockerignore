@@ -1,0 +1,6 @@
+*.pyc
+*.pyo
+*.pyd
+.git/
+.gitignore
+.DB_Store

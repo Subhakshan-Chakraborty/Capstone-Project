@@ -1,0 +1,93 @@
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: todo_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+
+  fastapi:
+    build: ./backend/fast-api
+    container_name: fastapi-app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - my-net
+
+  django:
+    build: ./backend/django
+    container_name: django-app
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - my-net
+
+  node:
+    build: ./backend/node
+    container_name: node-app
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - my-net
+
+  dotnet:
+    build: ./backend/dotnet
+    container_name: dotnet-app
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - my-net
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - fastapi
+      - django
+      - node
+      - dotnet
+    networks:
+      - my-net
+
+volumes:
+  mysql-data:
+
+networks:
+  my-net:

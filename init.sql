@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS todos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255),
+  completed BOOLEAN
+);
