@@ -1,11 +1,29 @@
 pipeline {
     agent any
 
+    environment {
+        COMPOSE_PROJECT_NAME = "capstone-ci"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Prepare Env') {
+            steps {
+                sh '''
+                cat <<EOF > .env
+DB_HOST=mysql
+DB_USER=root
+DB_PASSWORD=root123
+DB_NAME=todo_db
+DB_PORT=3306
+EOF
+                '''
             }
         }
 
@@ -21,19 +39,43 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Wait for Services') {
             steps {
                 sh '''
-                sleep 15
-                curl -f http://localhost/api/health
+                echo "Waiting for services to be ready..."
+
+                for i in {1..10}; do
+                  curl -s http://localhost/api/health && break
+                  echo "Retry $i..."
+                  sleep 5
+                done
                 '''
             }
         }
 
-        stage('Cleanup') {
+        stage('Test') {
             steps {
-                sh 'docker compose down'
+                sh '''
+                echo "Running health check..."
+                curl -f http://localhost/api/health
+                '''
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Cleaning up containers..."
+            sh 'docker compose down'
+        }
+
+        success {
+            echo "Pipeline succeeded"
+        }
+
+        failure {
+            echo "Pipeline failed"
+            sh 'docker compose logs'
         }
     }
 }
