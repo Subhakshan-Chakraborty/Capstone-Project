@@ -1,183 +1,227 @@
-# 🚀 3-Tier Multi-Backend DevOps Project
+# 🚀 Capstone Project – Multi-Backend 3-Tier Architecture
 
 ## 📌 Overview
-This project demonstrates a production-like **3-tier architecture** with:
-- One frontend (React)
-- Multiple backend services (FastAPI, Django, Node.js, .NET)
-- Shared MySQL database
+
+This project demonstrates a **production-like 3-tier architecture** using multiple backend technologies:
+
+- FastAPI (Python)
+- Django (Python)
+- Node.js (Express)
+- .NET (ASP.NET Core)
+- MySQL (shared database)
+- NGINX (reverse proxy + load balancer)
+- Docker & Docker Compose
+
+All backend services share a **single MySQL database** and are routed through NGINX using **round-robin load balancing**.
 
 ---
 
-## 🧱 Architecture
-
+## 🏗️ Architecture
 Frontend (React)
 ↓
-Backend Services
-- FastAPI (8000)
-- Django (8001)
-- Node.js (8002)
-- .NET (5000/auto)
+NGINX
 ↓
-MySQL Database (Docker)
+┌───────────────┬───────────────┬───
+│ FastAPI │ Django │ Node.js │ .NET │
+└───────────────┴───────────────┴───
+↓
+MySQL DB
+
 
 ---
 
-## 🛠️ Tech Stack
-
-- Frontend: React  
-- Backend:
-  - FastAPI (Python)
-  - Django (Python)
-  - Node.js (Express)
-  - .NET Web API  
-- Database: MySQL (Docker)
-
----
-
-## 📁 Project Structure
-
-
-Capstone_Project/
-│
-├── frontend/
+## 📂 Project Structure
+CAPSTONE-PROJECT/
 │
 ├── backend/
-│ ├── fastapi/
 │ ├── django/
+│ ├── fast-api/
 │ ├── node/
 │ └── dotnet/
 │
+├── frontend/
+├── nginx/
+│ └── nginx.conf
+│
+├── docker-compose.yml
+├── .env
+├── init.sql
 └── README.md
 
 
 ---
 
-## 🚀 Setup Instructions
+## ⚙️ Prerequisites
 
-### 1. Clone Repository
+Make sure you have installed:
+
+- Docker  
+- Docker Compose  
+- Git  
+
+---
+
+## 🔧 Setup Instructions
+
+### 1️⃣ Clone the Repository
 
 ```bash
 git clone <your-repo-url>
-cd Capstone_Project
-🐳 MySQL Setup (Docker)
-docker run -d \
-  --name mysql-db \
-  -e MYSQL_ROOT_PASSWORD=root123 \
-  -e MYSQL_DATABASE=todo_db \
-  -p 3306:3306 \
-  mysql:8
-🧠 Database Setup
+cd CAPSTONE-PROJECT
 
-Enter MySQL:
+2️⃣ Create .env file
 
-docker exec -it mysql-db mysql -u root -p
+Create a .env file in root:
 
-Password:
+DB_HOST=mysql-db
+DB_USER=root
+DB_PASSWORD=root123
+DB_NAME=todo_db
+DB_PORT=3306
+3️⃣ Start the Application
+docker compose up --build -d
+4️⃣ Verify Containers
+docker ps
 
-root123
+You should see:
 
-Then run:
+mysql-db
+fastapi-app
+django-app
+node-app
+dotnet-app
+nginx
+🌐 Access the Application
+🔹 API via NGINX
+http://localhost/api/todos
+🔹 Health Check (Optional)
+http://localhost/api/health
+🔄 Load Balancing Behavior
 
-USE todo_db;
+NGINX distributes requests across all backend services:
 
-CREATE TABLE todos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255),
-    completed BOOLEAN
-);
-⚡ FastAPI Setup
-cd backend/fastapi
+FastAPI
+Django
+Node.js
+.NET
 
-python3 -m venv venv
-source venv/bin/activate
+Each request may be served by a different backend.
 
-pip install -r requirements.txt
+🧪 Testing Load Balancing
 
-uvicorn main:app --reload
+Run:
 
-Runs on:
+for i in {1..10}; do curl http://localhost/api/todos; done
 
-http://127.0.0.1:8000
-🌐 Django Setup
-cd backend/django
+Check logs:
 
-python3 -m venv venv
-source venv/bin/activate
+docker logs -f nginx
 
-pip install -r requirements.txt
+You will see different backends serving requests.
 
-python manage.py makemigrations
-python manage.py migrate
+🐞 Debugging
+Check logs:
+docker logs -f nginx
+docker logs -f fastapi-app
+docker logs -f django-app
+docker logs -f node-app
+docker logs -f dotnet-app
+Restart everything:
+docker compose down
+docker compose up --build -d
+⚠️ Common Issues
+1. Port already in use
+Error: port already allocated
 
-python manage.py runserver 8001
+Fix:
 
-Runs on:
+docker compose down
+2. MySQL connection issue
 
-http://127.0.0.1:8001
-🟢 Node.js Setup
-cd backend/node
+Wait for MySQL to be healthy:
 
-npm install
-node index.js
+docker ps
+3. No response from API
 
-Runs on:
+Check:
 
-http://localhost:8002
-🔵 .NET Setup
-cd backend/dotnet
-
-dotnet run
-
-Runs on:
-
-http://localhost:5000
-(or auto-assigned port)
-💻 Frontend Setup
-cd frontend
-
-npm install
-npm start
-
-Runs on:
-
-http://localhost:3000
-🔍 API Endpoints
-Health Checks
-FastAPI → /health
-Django → /health
-Node.js → /health
-.NET → /health
-Todos
-GET /todos
-POST /todos
-🔥 Current Status
-✅ Multi-backend services working
-✅ Shared MySQL database
-✅ Frontend connected (FastAPI)
-✅ All services independently tested
-🚧 Upcoming Features
-Dockerization
-Nginx reverse proxy
-Jenkins CI/CD pipeline
-Artifact Registry integration
-Cloud deployment (AWS & GCP)
+NGINX config
+Backend logs
+📌 Notes
+All backend services use the same database
+APIs are unified (/todos, /health)
+Frontend communicates only with NGINX
+🚀 Future Improvements
+Deploy to GCP (VPC, Load Balancer, Cloud SQL)
+CI/CD with Jenkins
+Monitoring (Prometheus + Grafana)
+Kubernetes (GKE)
 👨‍💻 Author
 
-Subhakshan Chakraborty
+Capstone DevOps Project
 
 
----
+If you want next-level polish, I can :contentReference[oaicite:0]{index=0}.
 
-Now this will:
-- ✅ Render perfectly on GitHub  
-- ✅ No formatting issues  
-- ✅ Clean professional look  
 
----
 
-Once done, push and tell me:
 
-👉 **“pushed to github”**
+## frontend/src/app.js code:
+import { useEffect, useState } from "react";
 
-Tomorrow we go:
-🔥 Docker → Jenkins → Full DevOps pipeline
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [title, setTitle] = useState("");
+
+  const API = "http://localhost/api";
+
+  // Fetch todos
+  const fetchTodos = async () => {
+    const res = await fetch(`${API}/todos`);
+    const data = await res.json();
+    setTodos(data);
+  };
+
+  // Add todo
+  const addTodo = async () => {
+    if (!title) return;
+
+    await fetch(`${API}/todos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ title, completed: false })
+    });
+
+    setTitle("");
+    fetchTodos();
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>To-Do App</h1>
+
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Enter task"
+      />
+      <button onClick={addTodo}>Add</button>
+
+      <ul>
+        {todos.map((t, i) => (
+          <li key={i}>
+            {t.title} - {t.completed ? "Done" : "Pending"}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
