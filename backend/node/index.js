@@ -23,7 +23,14 @@ app.get("/health", (req, res) => {
 app.get("/todos", (req, res) => {
   db.query("SELECT * FROM todos", (err, result) => {
     if (err) return res.status(500).json(err);
-    res.json(result);
+
+    const formatted = result.map(row => ({
+      id: row.id,
+      title: row.title,
+      completed: Boolean(row.completed)   // ✅ FIX
+    }));
+
+    res.json(formatted);
   });
 });
 
@@ -35,7 +42,7 @@ app.post("/todos", (req, res) => {
     [title, completed],
     (err) => {
       if (err) return res.status(500).json(err);
-      res.json({ message: "Todo added (Node)" });
+      res.json({ message: "Todo added" });
     }
   );
 });
