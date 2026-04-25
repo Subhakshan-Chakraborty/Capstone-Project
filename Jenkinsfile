@@ -2,80 +2,44 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_PROJECT_NAME = "capstone-ci"
+        BACKEND_IP = "10.0.0.2"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                checkout scm
+                git 'https://github.com/Subhakshan-Chakraborty/Capstone-Project.git'
             }
         }
 
-        stage('Prepare Env') {
+        stage('Deploy to Backend VM') {
             steps {
-                sh '''
-                cat <<EOF > .env
-DB_HOST=mysql
-DB_USER=root
-DB_PASSWORD=root123
-DB_NAME=todo_db
-DB_PORT=3306
-EOF
-                '''
+                sshagent(['backend-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP << EOF
+                        cd ~/Capstone-Project || git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git ~/Capstone-Project
+                        cd ~/Capstone-Project
+                        git pull
+
+                        docker compose down
+                        docker compose up -d --build
+                    EOF
+                    '''
+                }
             }
         }
 
-        stage('Build') {
+        stage('Verify') {
             steps {
-                sh 'docker compose build'
+                sshagent(['backend-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP << EOF
+                        curl -f http://localhost/api/todos
+                    EOF
+                    '''
+                }
             }
-        }
-
-        stage('Run') {
-            steps {
-                sh 'docker compose up -d'
-            }
-        }
-
-        stage('Wait for Services') {
-            steps {
-                sh '''
-                echo "Waiting for services to be ready..."
-
-                for i in {1..10}; do
-                  curl -s http://localhost/api/health && break
-                  echo "Retry $i..."
-                  sleep 5
-                done
-                '''
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh '''
-                echo "Running health check..."
-                curl -f http://localhost/api/health
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            echo "Cleaning up containers..."
-            sh 'docker compose down'
-        }
-
-        success {
-            echo "Pipeline succeeded"
-        }
-
-        failure {
-            echo "Pipeline failed"
-            sh 'docker compose logs'
         }
     }
 }
