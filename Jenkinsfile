@@ -25,33 +25,33 @@ EOF
         }
 
         stage('Verify') {
-            steps {
-                sshagent(['subhakshanchakraborty8']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@10.0.0.2 << 'EOF'
-                    
-                    echo "Waiting for services to be ready..."
-                    sleep 40
+    steps {
+        sshagent(['backend-key']) {
+            sh '''
+    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@10.0.0.2 << 'EOF'
 
-                    echo "Starting health check..."
+    echo "Waiting for services..."
+    sleep 40
 
-                    for i in {1..6}; do
-                    if curl -f http://localhost; then
-                        echo "Application is UP "
-                        exit 0
-                    else
-                        echo "Attempt $i failed... retrying in 10s"
-                        sleep 10
-                    fi
-                    done
+    echo "Health check..."
 
-                    echo "Application is DOWN "
-                    exit 1
+    for i in {1..6}; do
+        if curl -f http://localhost/fastapi/; then
+            echo "App is UP"
+            exit 0
+        else
+            echo "Retry $i..."
+            sleep 10
+        fi
+    done
 
-                    EOF
-                    '''
-                }
+    echo "App is DOWN"
+    exit 1
+
+    EOF
+    '''
             }
         }
+    }
     }
 }
