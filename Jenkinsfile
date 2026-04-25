@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Clone') {
-            steps {
-                git 'https://github.com/Subhakshan-Chakraborty/Capstone-Project.git'
-            }
-        }
-
         stage('Deploy to Backend VM') {
             steps {
                 sshagent(['backend-key']) {
