@@ -26,12 +26,30 @@ EOF
 
         stage('Verify') {
             steps {
-                sshagent(['backend-key']) {
+                sshagent(['subhakshanchakraborty8']) {
                     sh '''
-ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP <<EOF
-curl -f http://localhost/api/todos
-EOF
-'''
+                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@10.0.0.2 << 'EOF'
+                    
+                    echo "Waiting for services to be ready..."
+                    sleep 40
+
+                    echo "Starting health check..."
+
+                    for i in {1..6}; do
+                    if curl -f http://localhost; then
+                        echo "Application is UP "
+                        exit 0
+                    else
+                        echo "Attempt $i failed... retrying in 10s"
+                        sleep 10
+                    fi
+                    done
+
+                    echo "Application is DOWN "
+                    exit 1
+
+                    EOF
+                    '''
                 }
             }
         }
