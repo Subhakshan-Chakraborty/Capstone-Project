@@ -11,18 +11,15 @@ pipeline {
             steps {
                 sshagent(['backend-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP << EOF
-                        if [ ! -d "~/Capstone-Project" ]; then
-                            git clone https://github.com/Subhakshan-Chakraborty/Capstone-Project.git ~/Capstone-Project
-                        fi
+ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP <<EOF
+cd ~/Capstone-Project || git clone https://github.com/Subhakshan-Chakraborty/Capstone-Project.git ~/Capstone-Project
+cd ~/Capstone-Project
+git pull
 
-                        cd ~/Capstone-Project
-                        git pull
-
-                        docker compose down
-                        docker compose up -d --build
-                    EOF
-                    '''
+docker compose down
+docker compose up -d --build
+EOF
+'''
                 }
             }
         }
@@ -31,10 +28,10 @@ pipeline {
             steps {
                 sshagent(['backend-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP << EOF
-                        curl -f http://localhost/api/todos
-                    EOF
-                    '''
+ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP <<EOF
+curl -f http://localhost/api/todos
+EOF
+'''
                 }
             }
         }
