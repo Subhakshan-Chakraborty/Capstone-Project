@@ -12,7 +12,10 @@ pipeline {
                 sshagent(['backend-key']) {
                     sh '''
                     ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP << EOF
-                        cd ~/Capstone-Project || git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git ~/Capstone-Project
+                        if [ ! -d "~/Capstone-Project" ]; then
+                            git clone https://github.com/Subhakshan-Chakraborty/Capstone-Project.git ~/Capstone-Project
+                        fi
+
                         cd ~/Capstone-Project
                         git pull
 
