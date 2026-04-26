@@ -2,7 +2,11 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_PROJECT_NAME = "capstone-ci"
+        PROJECT_ID = "linux-box-1-492217"
+        REGION = "asia-south1"
+        REGISTRY = "asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry"
+        ZONE = "asia-south1-a"
+        BACKEND_VM = "backend-vm"
     }
 
     stages {
@@ -13,69 +17,64 @@ pipeline {
             }
         }
 
-        stage('Prepare Env') {
-            steps {
-                sh '''
-                cat <<EOF > .env
-DB_HOST=mysql
-DB_USER=root
-DB_PASSWORD=root123
-DB_NAME=todo_db
-DB_PORT=3306
-EOF
-                '''
-            }
-        }
-
-        stage('Build') {
+        stage('Build Images') {
             steps {
                 sh 'docker compose build'
             }
         }
 
-        stage('Run') {
-            steps {
-                sh 'docker compose up -d'
-            }
-        }
-
-        stage('Wait for Services') {
+        stage('Push to Artifact Registry') {
             steps {
                 sh '''
-                echo "Waiting for services to be ready..."
+                    gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
 
-                for i in {1..10}; do
-                  curl -s http://localhost/api/health && break
-                  echo "Retry $i..."
-                  sleep 5
-                done
+                    docker tag capstone-project-fastapi $REGISTRY/fastapi:latest
+                    docker tag capstone-project-django $REGISTRY/django:latest
+                    docker tag capstone-project-node $REGISTRY/node:latest
+                    docker tag capstone-project-dotnet $REGISTRY/dotnet:latest
+
+                    docker push $REGISTRY/fastapi:latest
+                    docker push $REGISTRY/django:latest
+                    docker push $REGISTRY/node:latest
+                    docker push $REGISTRY/dotnet:latest
                 '''
             }
         }
 
-        stage('Test') {
+        stage('Deploy to backend-vm') {
             steps {
                 sh '''
-                echo "Running health check..."
-                curl -f http://localhost/api/health
+                    gcloud compute ssh $BACKEND_VM \
+                        --zone=$ZONE \
+                        --tunnel-through-iap \
+                        --quiet \
+                        --command="
+                            cd ~/Capstone-Project &&
+                            gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
+                            docker compose pull &&
+                            docker compose up -d
+                        "
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    echo "Waiting for services..."
+                    sleep 10
+                    curl -f http://34.95.108.50/api/health
                 '''
             }
         }
     }
 
     post {
-        always {
-            echo "Cleaning up containers..."
-            sh 'docker compose down'
-        }
-
         success {
-            echo "Pipeline succeeded"
+            echo "✅ Pipeline succeeded! App deployed successfully."
         }
-
         failure {
-            echo "Pipeline failed"
-            sh 'docker compose logs'
+            echo "❌ Pipeline failed!"
         }
     }
 }
