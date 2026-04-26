@@ -6,14 +6,40 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// DB connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
+let db;
+
+// 🔁 Retry DB connection
+function connectDB() {
+  // 🔍 ADD THIS HERE
+  console.log("DB CONFIG:", {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+  });
+
+  db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: { rejectUnauthorized: false }
+  });
+
+  db.connect((err) => {
+    if (err) {
+      console.log("❌DB error.", err);
+      setTimeout(connectDB, 5000);
+    } else {
+      console.log("✅ Connected to MySQL (Node)");
+    }
+  });
+}
+
+connectDB();
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "healthy-node" });
@@ -27,7 +53,7 @@ app.get("/todos", (req, res) => {
     const formatted = result.map(row => ({
       id: row.id,
       title: row.title,
-      completed: Boolean(row.completed)   // ✅ FIX
+      completed: Boolean(row.completed)
     }));
 
     res.json(formatted);

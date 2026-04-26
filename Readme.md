@@ -68,21 +68,26 @@ Make sure you have installed:
 ```bash
 git clone <your-repo-url>
 cd CAPSTONE-PROJECT
+```
+### 2️⃣ Create .env file
 
-2️⃣ Create .env file
+#### Create a .env file in root:
 
-Create a .env file in root:
-
-DB_HOST=mysql-db
-DB_USER=root
-DB_PASSWORD=root123
+DB_HOST=10.134.160.3
+DB_USER=appuser
+DB_PASSWORD=App@12345
 DB_NAME=todo_db
 DB_PORT=3306
-3️⃣ Start the Application
-docker compose up --build -d
-4️⃣ Verify Containers
-docker ps
 
+
+### 3️⃣ Start the Application
+```
+docker compose up --build -d
+```
+### 4️⃣ Verify Containers
+```
+docker ps
+```
 You should see:
 
 mysql-db
@@ -166,14 +171,18 @@ If you want next-level polish, I can :contentReference[oaicite:0]{index=0}.
 
 
 
-## frontend/src/app.js code:
+# For Frontend setup, 
+cd frontend
+npm create react app .
+
+# replace the code of src/App.js with this:
 import { useEffect, useState } from "react";
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
 
-  const API = "http://localhost/api";
+  const API = "http://34.95.108.50/api";
 
   // Fetch todos
   const fetchTodos = async () => {
@@ -225,3 +234,7 @@ function App() {
 }
 
 export default App;
+
+
+
+# then do npm run build
