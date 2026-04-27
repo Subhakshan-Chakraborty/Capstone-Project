@@ -2,56 +2,79 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IP = "10.0.0.2"
+        PROJECT_ID = "linux-box-1-492217"
+        REGION = "asia-south1"
+        REGISTRY = "asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry"
+        ZONE = "asia-south1-b"
+        BACKEND_VM = "backend-vm"
     }
 
     stages {
 
-        stage('Deploy to Backend VM') {
+        stage('Checkout') {
             steps {
-                sshagent(['backend-key']) {
-                    sh '''
-ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@$BACKEND_IP <<EOF
-cd ~/Capstone-Project || git clone https://github.com/Subhakshan-Chakraborty/Capstone-Project.git ~/Capstone-Project
-cd ~/Capstone-Project
-git pull
-
-docker compose down
-docker compose up -d --build
-EOF
-'''
-                }
+                checkout scm
             }
         }
 
-        stage('Verify') {
-    steps {
-        sshagent(['backend-key']) {
-            sh '''
-    ssh -o StrictHostKeyChecking=no subhakshanchakraborty8@10.0.0.2 << 'EOF'
+        stage('Build Images') {
+            steps {
+                sh 'docker compose build'
+            }
+        }
 
-    echo "Waiting for services..."
-    sleep 40
+        stage('Push to Artifact Registry') {
+            steps {
+                sh '''
+                    gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
 
-    echo "Health check..."
+                    docker tag capstone-pipeline-fastapi $REGISTRY/fastapi:latest
+                    docker tag capstone-pipeline-django $REGISTRY/django:latest
+                    docker tag capstone-pipeline-node $REGISTRY/node:latest
+                    docker tag capstone-pipeline-dotnet $REGISTRY/dotnet:latest
 
-    for i in {1..6}; do
-        if curl -f http://localhost/fastapi/; then
-            echo "App is UP"
-            exit 0
-        else
-            echo "Retry $i..."
-            sleep 10
-        fi
-    done
+                    docker push $REGISTRY/fastapi:latest
+                    docker push $REGISTRY/django:latest
+                    docker push $REGISTRY/node:latest
+                    docker push $REGISTRY/dotnet:latest
+                '''
+            }
+        }
 
-    echo "App is DOWN"
-    exit 1
+        stage('Deploy to backend-vm') {
+            steps {
+                sh '''
+                    gcloud compute ssh $BACKEND_VM \
+                        --zone=$ZONE \
+                        --tunnel-through-iap \
+                        --quiet \
+                        --command="
+                            cd ~/Capstone-Project &&
+                            gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
+                            docker compose pull &&
+                            docker compose up -d
+                        "
+                '''
+            }
+        }
 
-    EOF
-    '''
+        stage('Health Check') {
+            steps {
+                sh '''
+                    echo "Waiting for services..."
+                    sleep 10
+                    curl -f http://34.95.108.50/api/health
+                '''
             }
         }
     }
+
+    post {
+        success {
+            echo "✅ Pipeline succeeded! App deployed successfully."
+        }
+        failure {
+            echo "❌ Pipeline failed!"
+        }
     }
 }

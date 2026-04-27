@@ -1,23 +1,23 @@
 services:
 
-  mysql:
-    image: mysql:8
-    container_name: mysql-db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: todo_db
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - my-net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      retries: 10
+  # mysql:
+  #   image: mysql:8
+  #   container_name: mysql-db
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root123
+  #     MYSQL_DATABASE: todo_db
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  #   networks:
+  #     - my-net
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 5s
+  #     retries: 10
 
   fastapi:
     build: ./backend/fast-api
@@ -26,9 +26,7 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
+    depends_on: []
     networks:
       - my-net
 
@@ -39,9 +37,7 @@ services:
       - "8001:8001"
     env_file:
       - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
+    depends_on: []
     networks:
       - my-net
 
@@ -53,8 +49,7 @@ services:
     env_file:
       - .env
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql: []
     networks:
       - my-net
 
@@ -65,9 +60,7 @@ services:
       - "8003:8003"
     env_file:
       - .env
-    depends_on:
-      mysql:
-        condition: service_healthy
+    depends_on: []
     networks:
       - my-net
 
