@@ -1,4 +1,4 @@
-// Pipeline
+
 pipeline {
     agent any
 
@@ -42,24 +42,22 @@ pipeline {
             }
         }
 
-    stage('Deploy to backend-vm') {
-        steps {
-            sh '''
-                gcloud compute ssh $BACKEND_VM \
-                    --zone=$ZONE \
-                    --tunnel-through-iap \
-                    --quiet \
-                    --command="
-                        cd /home/subhakshanchakraborty8/Capstone-Project &&
-                        git stash &&
-                        git pull origin main &&
-                        gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
-                        docker compose pull &&
-                        docker compose up -d
-                    "
-            '''
+        stage('Deploy to backend-vm') {
+            steps {
+                sh '''
+                    gcloud compute ssh $BACKEND_VM \
+                        --zone=$ZONE \
+                        --tunnel-through-iap \
+                        --quiet \
+                        --command="
+                            cd /home/subhakshanchakraborty8/Capstone-Project &&
+                            gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
+                            docker compose pull &&
+                            docker compose up -d
+                        "
+                '''
+            }
         }
-    }
 
         stage('Health Check') {
             steps {
