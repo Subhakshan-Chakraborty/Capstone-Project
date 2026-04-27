@@ -5,7 +5,7 @@ pipeline {
         PROJECT_ID = "linux-box-1-492217"
         REGION = "asia-south1"
         REGISTRY = "asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry"
-        ZONE = "asia-south1-a"
+        ZONE = "asia-south1-b"
         BACKEND_VM = "backend-vm"
     }
 
