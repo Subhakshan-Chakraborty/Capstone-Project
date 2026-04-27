@@ -51,6 +51,8 @@ pipeline {
                         --quiet \
                         --command="
                             cd /home/subhakshanchakraborty8/Capstone-Project &&
+                            git stash &&
+                            git pull origin main &&
                             gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
                             docker compose pull &&
                             docker compose up -d
