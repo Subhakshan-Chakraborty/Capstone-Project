@@ -49,7 +49,7 @@ pipeline {
                         --tunnel-through-iap \
                         --quiet \
                         --command="
-                            cd ~/Capstone-Project &&
+                            cd /home/subhakshanchakraborty8/Capstone-Project &&
                             gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
                             docker compose pull &&
                             docker compose up -d
