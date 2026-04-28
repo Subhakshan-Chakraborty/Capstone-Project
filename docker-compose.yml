@@ -1,26 +1,7 @@
 services:
 
-  # mysql:
-  #   image: mysql:8
-  #   container_name: mysql-db
-  #   restart: always
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root123
-  #     MYSQL_DATABASE: todo_db
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - mysql-data:/var/lib/mysql
-  #     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   networks:
-  #     - my-net
-  #   healthcheck:
-  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-  #     interval: 5s
-  #     retries: 10
-
   fastapi:
-    build: ./backend/fast-api
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/fastapi:latest
     container_name: fastapi-app
     ports:
       - "8000:8000"
@@ -31,7 +12,7 @@ services:
       - my-net
 
   django:
-    build: ./backend/django
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/django:latest
     container_name: django-app
     ports:
       - "8001:8001"
@@ -42,7 +23,7 @@ services:
       - my-net
 
   node:
-    build: ./backend/node
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/node:latest
     container_name: node-app
     ports:
       - "8002:8002"
@@ -53,7 +34,7 @@ services:
       - my-net
 
   dotnet:
-    build: ./backend/dotnet
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/dotnet:latest
     container_name: dotnet-app
     ports:
       - "8003:8003"
@@ -77,9 +58,6 @@ services:
       - dotnet
     networks:
       - my-net
-
-volumes:
-  mysql-data:
 
 networks:
   my-net:

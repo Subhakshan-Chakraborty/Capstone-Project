@@ -30,14 +30,28 @@ pipeline {
                     gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
 
                     docker tag capstone-pipeline-fastapi $REGISTRY/fastapi:latest
+                    docker tag capstone-pipeline-fastapi $REGISTRY/fastapi:$BUILD_NUMBER
+                    
                     docker tag capstone-pipeline-django $REGISTRY/django:latest
+                    docker tag capstone-pipeline-django $REGISTRY/django:$BUILD_NUMBER
+                    
                     docker tag capstone-pipeline-node $REGISTRY/node:latest
+                    docker tag capstone-pipeline-node $REGISTRY/node:$BUILD_NUMBER
+                    
                     docker tag capstone-pipeline-dotnet $REGISTRY/dotnet:latest
+                    docker tag capstone-pipeline-dotnet $REGISTRY/dotnet:$BUILD_NUMBER
 
                     docker push $REGISTRY/fastapi:latest
+                    docker push $REGISTRY/fastapi:$BUILD_NUMBER
+                    
                     docker push $REGISTRY/django:latest
+                    docker push $REGISTRY/django:$BUILD_NUMBER
+                    
                     docker push $REGISTRY/node:latest
+                    docker push $REGISTRY/node:$BUILD_NUMBER
+                    
                     docker push $REGISTRY/dotnet:latest
+                    docker push $REGISTRY/dotnet:$BUILD_NUMBER
                 '''
             }
         }
