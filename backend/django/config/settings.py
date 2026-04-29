@@ -13,6 +13,9 @@ from dotenv import load_dotenv
 import os 
 from pathlib import Path
 load_dotenv() 
+
+import pymysql
+pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
  
@@ -85,7 +88,8 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'ssl': {'ca': False}  # ← add this
+            'ssl': {'ca': None},
+            'connect_timeout': 10,
         }
     }
 }
