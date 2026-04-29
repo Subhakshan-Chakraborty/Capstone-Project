@@ -20,7 +20,12 @@ pipeline {
 
         stage('Build Images') {
             steps {
-                sh 'docker compose build --no-cache'
+                sh '''
+                    docker build --no-cache -t capstone-pipeline-fastapi ./backend/fast-api
+                    docker build --no-cache -t capstone-pipeline-django ./backend/django
+                    docker build --no-cache -t capstone-pipeline-node ./backend/node
+                    docker build --no-cache -t capstone-pipeline-dotnet ./backend/dotnet
+                '''
             }
         }
 
