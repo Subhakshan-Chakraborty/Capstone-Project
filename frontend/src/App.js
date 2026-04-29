@@ -7,6 +7,7 @@ const SERVERS = [
   { id: "django",  label: "Django",  path: "/django",  color: "#2e7d32"},
   { id: "node",    label: "Node.js", path: "/node",    color: "#f57c00"},
   { id: "dotnet",  label: ".NET",    path: "/dotnet",  color: "#7b1fa2"},
+  { id: "roundrobin", label: "Round Robin", path: "/api", color: "#e91e63"},
 ];
 
 const styles = `
@@ -49,7 +50,7 @@ const styles = `
 
   .server-selector {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     margin-bottom: 36px;
   }
