@@ -322,7 +322,7 @@ export default function App() {
         style={{ "--active-color": selectedServer.color }}
       >
         <div className="header">
-          <h1>Todo App</h1>
+          <h1>Todo App | Subhakshan Chakraborty</h1>
             <p>multi-backend · gcp capstone project</p>
         </div>
 
