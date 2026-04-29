@@ -86,8 +86,10 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'ssl_disabled': True,
-        }   
+            'ssl_disabled': False,
+            'ssl_verify_cert': False,
+            'ssl_verify_identity': False,
+        }
     }
 }
  
