@@ -323,7 +323,7 @@ export default function App() {
       >
         <div className="header">
           <h1>Todo App</h1>
-          <p>// multi-backend • gcp capstone project</p>
+            <p>multi-backend · gcp capstone project</p>
         </div>
 
         <div className="server-selector">
