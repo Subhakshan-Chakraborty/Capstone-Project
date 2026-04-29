@@ -1,4 +1,3 @@
-// Pipelines
 pipeline {
     agent any
 
@@ -8,6 +7,7 @@ pipeline {
         REGISTRY = "asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry"
         ZONE = "asia-south1-b"
         BACKEND_VM = "backend-vm"
+        FRONTEND_BUCKET = "capstone-frontend-bucket0"
     }
 
     stages {
@@ -56,6 +56,24 @@ pipeline {
             }
         }
 
+        stage('Build Frontend') {
+            steps {
+                sh '''
+                    cd frontend
+                    npm install
+                    npm run build
+                '''
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                sh '''
+                    gsutil -m rsync -r -d frontend/build/ gs://$FRONTEND_BUCKET/
+                '''
+            }
+        }
+
         stage('Deploy to backend-vm') {
             steps {
                 sh '''
@@ -89,10 +107,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline succeeded! App deployed successfully."
+            echo "Pipeline succeeded! App deployed successfully."
         }
         failure {
-            echo "❌ Pipeline failed!"
+            echo "Pipeline failed!"
         }
     }
 }
