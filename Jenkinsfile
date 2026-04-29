@@ -80,7 +80,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Waiting for services..."
-                    sleep 10
+                    sleep 30
                     curl -f http://34.95.108.50/api/health
                 '''
             }
