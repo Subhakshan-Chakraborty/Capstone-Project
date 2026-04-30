@@ -87,9 +87,9 @@ pipeline {
                         --tunnel-through-iap \
                         --quiet \
                         --command="
+                            bash /home/subhakshanchakraborty8/fetch-secrets.sh &&
                             cd /home/subhakshanchakraborty8/Capstone-Project &&
-                            git fetch origin &&
-                            git reset --hard origin/main &&
+                            git fetch origin && git reset --hard origin/main &&
                             gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
                             docker compose pull &&
                             docker compose up -d &&
