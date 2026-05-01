@@ -1,7 +1,7 @@
 services:
 
   fastapi:
-    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/fastapi:50
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/fastapi:51
     ports:
       - "8000:8000"
     environment:
