@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'ROLLBACK_MODE', defaultValue: false, description: 'Set to TRUE to rollback. Edit docker-compose.yml with desired build numbers before triggering.')
+    }
+
     environment {
         PROJECT_ID      = "linux-box-1-492217"
         REGION          = "asia-south1"
@@ -19,6 +23,9 @@ pipeline {
         }
 
         stage('Build Images') {
+            when {
+                expression { return params.ROLLBACK_MODE == false }
+            }
             steps {
                 sh '''
                     docker build --no-cache -t capstone-pipeline-fastapi ./backend/fast-api
@@ -30,11 +37,13 @@ pipeline {
         }
 
         stage('Push to Artifact Registry') {
+            when {
+                expression { return params.ROLLBACK_MODE == false }
+            }
             steps {
                 sh '''
                     gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
 
-                    # Tag with build number only (no more :latest push)
                     docker tag capstone-pipeline-fastapi $REGISTRY/fastapi:$BUILD_NUMBER
                     docker tag capstone-pipeline-django   $REGISTRY/django:$BUILD_NUMBER
                     docker tag capstone-pipeline-node     $REGISTRY/node:$BUILD_NUMBER
@@ -51,6 +60,9 @@ pipeline {
         }
 
         stage('Build Frontend') {
+            when {
+                expression { return params.ROLLBACK_MODE == false }
+            }
             steps {
                 sh '''
                     cd frontend
@@ -61,6 +73,9 @@ pipeline {
         }
 
         stage('Deploy Frontend') {
+            when {
+                expression { return params.ROLLBACK_MODE == false }
+            }
             steps {
                 sh '''
                     gsutil -m rsync -r -d frontend/build/ gs://$FRONTEND_BUCKET/
@@ -79,13 +94,17 @@ pipeline {
                             cd /home/subhakshanchakraborty8/Capstone-Project &&
                             git fetch origin && git reset --hard origin/main &&
 
-                            echo '🔢 Updating docker-compose.yml to build number: ${BUILD_NUMBER}' &&
-                            sed -i 's|/fastapi:[0-9]*|/fastapi:${BUILD_NUMBER}|g' docker-compose.yml &&
-                            sed -i 's|/django:[0-9]*|/django:${BUILD_NUMBER}|g'   docker-compose.yml &&
-                            sed -i 's|/node:[0-9]*|/node:${BUILD_NUMBER}|g'       docker-compose.yml &&
-                            sed -i 's|/dotnet:[0-9]*|/dotnet:${BUILD_NUMBER}|g'   docker-compose.yml &&
+                            if [ '${ROLLBACK_MODE}' = 'false' ]; then
+                                echo '🔢 Normal deploy — updating docker-compose.yml to build: ${BUILD_NUMBER}' &&
+                                sed -i 's|/fastapi:[0-9]*|/fastapi:${BUILD_NUMBER}|g' docker-compose.yml &&
+                                sed -i 's|/django:[0-9]*|/django:${BUILD_NUMBER}|g'   docker-compose.yml &&
+                                sed -i 's|/node:[0-9]*|/node:${BUILD_NUMBER}|g'       docker-compose.yml &&
+                                sed -i 's|/dotnet:[0-9]*|/dotnet:${BUILD_NUMBER}|g'   docker-compose.yml
+                            else
+                                echo '⏪ Rollback mode — using build numbers from docker-compose.yml as-is'
+                            fi &&
 
-                            echo 'docker-compose.yml now uses:' &&
+                            echo '📋 docker-compose.yml will deploy:' &&
                             grep 'image:' docker-compose.yml &&
 
                             gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
@@ -103,7 +122,7 @@ pipeline {
                     echo "Waiting for services to start..."
                     sleep 30
                     curl -f http://34.95.108.50/api/health
-                    echo "Build #${BUILD_NUMBER} deployed successfully!"
+                    echo "✅ Deployment successful!"
                 '''
             }
         }
@@ -111,10 +130,22 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline succeeded! Build #${BUILD_NUMBER} deployed."
+            script {
+                if (params.ROLLBACK_MODE) {
+                    echo "⏪ Rollback completed successfully!"
+                } else {
+                    echo "✅ Build #${BUILD_NUMBER} deployed successfully!"
+                }
+            }
         }
         failure {
-            echo "Pipeline failed! Build #${BUILD_NUMBER} was NOT deployed."
+            script {
+                if (params.ROLLBACK_MODE) {
+                    echo "❌ Rollback failed! Check logs."
+                } else {
+                    echo "❌ Build #${BUILD_NUMBER} deployment failed!"
+                }
+            }
         }
     }
 }

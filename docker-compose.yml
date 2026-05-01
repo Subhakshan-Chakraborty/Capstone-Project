@@ -1,7 +1,7 @@
 services:
 
   fastapi:
-    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/fastapi:51
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/fastapi:50
     ports:
       - "8000:8000"
     environment:
@@ -15,7 +15,7 @@ services:
       - my-net
 
   django:
-    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/django:51
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/django:50
     ports:
       - "8001:8001"
     environment:
@@ -29,7 +29,7 @@ services:
       - my-net
 
   node:
-    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/node:51
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/node:50
     ports:
       - "8002:8002"
     environment:
@@ -43,7 +43,7 @@ services:
       - my-net
 
   dotnet:
-    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/dotnet:51
+    image: asia-south1-docker.pkg.dev/linux-box-1-492217/capstone-registry/dotnet:50
     ports:
       - "8003:8003"
     environment:
