@@ -175,7 +175,7 @@ pipeline {
                     docker push $REGISTRY/node:$BUILD_NUMBER
                     docker push $REGISTRY/dotnet:$BUILD_NUMBER
 
-                    echo "✅ Pushed all images with build number: $BUILD_NUMBER"
+                    echo "Pushed all images with build number: $BUILD_NUMBER"
                 '''
             }
         }
@@ -216,16 +216,16 @@ pipeline {
                             git fetch origin && git reset --hard origin/main &&
 
                             if [ '${ROLLBACK_MODE}' = 'false' ]; then
-                                echo '🔢 Normal deploy — updating docker-compose.yml to build: ${BUILD_NUMBER}' &&
+                                echo 'Normal deploy — updating docker-compose.yml to build: ${BUILD_NUMBER}' &&
                                 sed -i 's|/fastapi:[0-9]*|/fastapi:${BUILD_NUMBER}|g' docker-compose.yml &&
                                 sed -i 's|/django:[0-9]*|/django:${BUILD_NUMBER}|g'   docker-compose.yml &&
                                 sed -i 's|/node:[0-9]*|/node:${BUILD_NUMBER}|g'       docker-compose.yml &&
                                 sed -i 's|/dotnet:[0-9]*|/dotnet:${BUILD_NUMBER}|g'   docker-compose.yml
                             else
-                                echo '⏪ Rollback mode — using build numbers from docker-compose.yml as-is'
+                                echo 'Rollback mode — using build numbers from docker-compose.yml as-is'
                             fi &&
 
-                            echo '📋 docker-compose.yml will deploy:' &&
+                            echo 'docker-compose.yml will deploy:' &&
                             grep 'image:' docker-compose.yml &&
 
                             gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet &&
@@ -243,7 +243,7 @@ pipeline {
                     echo "Waiting for services to start..."
                     sleep 30
                     curl -f http://34.95.108.50/api/health
-                    echo "✅ Deployment successful!"
+                    echo "Deployment successful!"
                 '''
             }
         }
@@ -253,18 +253,18 @@ pipeline {
         success {
             script {
                 if (params.ROLLBACK_MODE) {
-                    echo "⏪ Rollback completed successfully!"
+                    echo "Rollback completed successfully!"
                 } else {
-                    echo "✅ Build #${BUILD_NUMBER} deployed successfully!"
+                    echo "Build #${BUILD_NUMBER} deployed successfully!"
                 }
             }
         }
         failure {
             script {
                 if (params.ROLLBACK_MODE) {
-                    echo "❌ Rollback failed! Check logs."
+                    echo "Rollback failed! Check logs."
                 } else {
-                    echo "❌ Build #${BUILD_NUMBER} deployment failed!"
+                    echo "Build #${BUILD_NUMBER} deployment failed!"
                 }
             }
         }
