@@ -1,0 +1,30 @@
+groups:
+  - name: capstone_alerts
+    rules:
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 1 minute."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory usage"
+          description: "Memory usage is above 80%."
+
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name=~"fastapi|django|node|dotnet|nginx"})
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "A container is down"
+          description: "One of the backend containers has stopped."
