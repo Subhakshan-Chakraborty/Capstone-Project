@@ -1,0 +1,44 @@
+{
+  "dashboard": {
+    "title": "Capstone Monitoring",
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "CPU Usage %",
+        "type": "graph",
+        "targets": [{
+          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "title": "Memory Usage %",
+        "type": "graph",
+        "targets": [{
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "Memory"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "title": "API Latency (seconds)",
+        "type": "graph",
+        "targets": [{
+          "expr": "probe_duration_seconds{group=\"latency\"}",
+          "legendFormat": "{{instance}}"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "title": "Service Health Status",
+        "type": "stat",
+        "targets": [{
+          "expr": "probe_success{group=\"health\"}",
+          "legendFormat": "{{instance}}"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ]
+  }
+}
