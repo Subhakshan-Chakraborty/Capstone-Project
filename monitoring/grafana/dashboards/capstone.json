@@ -33,7 +33,7 @@
       "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
       "targets": [
         {
-          "expr": "count(container_last_seen{name=~'fastapi|django|node|dotnet|nginx'})",
+          "expr": "count(container_last_seen{name=~'capstone-project-fastapi-1|capstone-project-django-1|capstone-project-node-1|capstone-project-dotnet-1|nginx'})",
           "legendFormat": "Containers"
         }
       ]
